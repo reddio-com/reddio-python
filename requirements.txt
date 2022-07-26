@@ -1,0 +1,3 @@
+mpmath
+ecdsa
+sympy
