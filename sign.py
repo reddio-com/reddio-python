@@ -2255,6 +2255,47 @@ def get_transfer_msg(
         instruction_type, sender_vault_id, receiver_vault_id, amount, 0, token, receiver_public_key,
         nonce, expiration_timestamp, hash=hash, condition=condition)
 
+def get_limit_order_msg_with_fee(
+        vault_sell: int, vault_buy: int, amount_sell: int, amount_buy: int, token_sell: int,
+        token_buy: int, nonce: int, expiration_timestamp: int, fee_token:int, fee_limit: int,fee_vault_id: int,
+        hash=pedersen_hash) -> int:
+    """
+    party_a sells amount_sell coins of token_sell from vault_sell.
+    party_a buys amount_buy coins of token_buy into vault_buy.
+    """
+    assert 0 <= vault_sell < 2**31
+    assert 0 <= vault_buy < 2**31
+    assert 0 <= amount_sell < 2**63
+    assert 0 <= amount_buy < 2**63
+    assert 0 <= token_sell < FIELD_PRIME
+    assert 0 <= token_buy < FIELD_PRIME
+    assert 0 <= nonce < 2**31
+    assert 0 <= expiration_timestamp < 2**22
+
+    instruction_type = 3
+    return get_msg_with_fee(
+        instruction_type, vault_sell, vault_buy, amount_sell, amount_buy, token_sell, token_buy,
+        nonce, expiration_timestamp,fee_limit,fee_token,fee_vault_id,  hash=hash)
+
+def get_msg_with_fee(instruction_type: int, vault_sell: int, vault_buy: int, amount_sell: int, amount_buy: int, token_sell: int,
+        token_buy: int, nonce: int, expiration_timestamp: int, fee_limit : int, fee_token : int, fee_vault_id : int,
+        hash=pedersen_hash, condition: Optional[int] = None) -> int:
+    packedMessage1 = amount_sell
+    packedMessage1 = packedMessage1 * 2**64 + amount_buy
+    packedMessage1 = packedMessage1 * 2**64 + fee_limit
+    packedMessage1 = packedMessage1 * 2**32 + nonce
+
+    packedMessage2 = instruction_type
+    packedMessage2 = packedMessage2 * 2**64 + fee_vault_id
+    packedMessage2 = packedMessage2 * 2**64 + vault_sell
+    packedMessage2 = packedMessage2 * 2**64 + vault_buy
+    packedMessage2 = packedMessage2 * 2**32 + expiration_timestamp
+    packedMessage2 = packedMessage2 * 2**17
+
+    tmpHash = hash(hash(token_sell, token_buy), fee_token)
+    msgHash = hash(hash(tmpHash, packedMessage1), packedMessage2)
+    return msgHash
+
 
 def verify_transaction(stark_key, amount,nonce, asset_id, sender_vault_id, receiver_public_key, receiver_vault_id, expiration_timestamp, r, s):
     data = {'amount': amount, 'nonce': nonce,
