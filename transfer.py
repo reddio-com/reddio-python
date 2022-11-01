@@ -45,6 +45,3 @@ def withdrawNFT(sender_starkkey,stark_private_key, receiver, token_type, contrac
     headers = {'Content-Type': 'application/json'}
     x = request(url, transfer_data, headers)
     return x.json()
-
-def balance():
-    pass
