@@ -9,8 +9,6 @@ from http_utils import request
 from starkex_utils import get_signature_local,get_asset_id
 
 
-LOGGER = logging.getLogger(__name__)
-
 def get_vault_id(stark_key, assetid):
     data = {"asset_id":assetid, "stark_keys": stark_key}
     headers = {'Content-Type': 'application/json'}
@@ -25,6 +23,13 @@ def get_order_info(stark_key, contract1Type, contract1Address, contract1TokenID,
     r = requests.get(url, headers = headers)
     return r.json()['data']
 
+
+def get_balances(stark_key, page=1, limit=10):
+    uri = '/v1/balances' + '?stark_key=' + str(stark_key) + '&page=' + str(page) + '&limit=' + str(limit)
+    url = REDDIO_ENDPOIT + uri
+    headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+    r = requests.get(url, headers = headers)
+    return r.json()["data"]["list"]
 
 def get_orders(contract_address):
     uri = '/v1/orders' + '?contract_address=' + str(contract_address)
