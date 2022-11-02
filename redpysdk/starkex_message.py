@@ -1,6 +1,6 @@
 from typing import Optional
 
-from signature import FIELD_PRIME, pedersen_hash
+from .signature import FIELD_PRIME, pedersen_hash
 
 
 def get_msg(

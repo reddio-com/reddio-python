@@ -23,7 +23,7 @@ from typing import Optional, Tuple, Union
 
 from ecdsa.rfc6979 import generate_k
 
-from math_utils import ECPoint, div_mod, ec_add, ec_double, ec_mult, is_quad_residue, sqrt_mod
+from .math_utils import ECPoint, div_mod, ec_add, ec_double, ec_mult, is_quad_residue, sqrt_mod
 
 PEDERSEN_HASH_POINT_FILENAME = os.path.join(
     os.path.dirname(__file__), 'pedersen_params.json')

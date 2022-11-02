@@ -1,8 +1,8 @@
 from web3 import Web3
 import web3
 
-from signature import private_to_stark_key, sign
-from starkex_message import get_limit_order_msg_with_fee, get_transfer_msg
+from .signature import private_to_stark_key, sign
+from .starkex_message import get_limit_order_msg_with_fee, get_transfer_msg
 
 def get_asset_info(type, address):
     if type.lower() == "eth":
