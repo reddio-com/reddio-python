@@ -6,7 +6,7 @@
 ### install
 
 ```
-pip3 install redpysdk
+pip3 install red-py-sdk
 ```
 
 ### Usage
