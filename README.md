@@ -19,13 +19,19 @@ from redpysdk import Reddio
 
 Using 'testnet' or 'mainnet' to init the sdk
 
+##### Example
+Init with testnet
 ```
 obj = Reddio("testnet")
 ```
 
 #### Get Balance
 
-```obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")```
+##### Example
+
+```
+obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")
+```
 
 It will return the starkkey's balance. including ERC20/ETH/ERC721
 
