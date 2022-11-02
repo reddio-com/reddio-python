@@ -25,15 +25,20 @@ obj = Reddio("testnet")
 
 #### Get Balance
 
+##### Usage
+
+```
+get_balances(stark_key, page=1, limit=10)
+```
+It will return the starkkey's balance. including ERC20/ETH/ERC721
+
 ##### Example
 
 ```
 obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")
 ```
 
-It will return the starkkey's balance. including ERC20/ETH/ERC721
 
-The definition is `get_balances(stark_key, page=1, limit=10)`
 
 #### Transfer
 ```obj.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0x1ada455b26b246260b7fd876429289639d7a0ce5fe295ff2355bd4f4da55e2', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '618'))```
