@@ -41,11 +41,11 @@ obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d016363
 
 
 #### Transfer
-```obj.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0x1ada455b26b246260b7fd876429289639d7a0ce5fe295ff2355bd4f4da55e2', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '618'))```
 
-you should replace the 'private_key' to the private key of the starkkey
-
-The definition is ```transferNFT(stark_private_key, starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303)```
+##### Usage
+```
+transferNFT(stark_private_key, starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303)
+```
 
 parameters
 - stark_private_key: the private key of layer2
@@ -54,6 +54,15 @@ parameters
 - token_type: ERC721 or ERC721M. if mint on layer2 then it should be ERC721M. else it should be ERC721
 - tokenID: the token id
 - expiration_timestamp: when will it expiration, it is unix timestamp/3600
+
+##### Example
+
+```
+obj.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0x1ada455b26b246260b7fd876429289639d7a0ce5fe295ff2355bd4f4da55e2', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '618'))
+```
+
+you should replace the 'private_key' to the private key of the starkkey
+
 
 
 #### Withdrawal
