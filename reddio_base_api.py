@@ -2,8 +2,6 @@ import requests
 import logging
 
 from settings import REDDIO_ENDPOIT
-from settings import TEST_SERVICE_ENDPOIT
-from settings import SELL_STARK_KEY,  SELL_PRIVATE_KEY, RECEIVER_STARKKEY, ERC721_DEMO_CONTRACT, BUY_STARK_KEY
 
 from http_utils import request
 from starkex_utils import get_signature_local,get_asset_id
@@ -79,3 +77,5 @@ def get_transfer_data(data):
     original_transfer_data['asset_id'] = data['asset_id']
     original_transfer_data['expiration_timestamp'] = int(data['expiration_timestamp'])
     return original_transfer_data
+if __name__ == "__main__":
+    print(get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a"))
