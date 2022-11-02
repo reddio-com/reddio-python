@@ -23,6 +23,7 @@ Init the object, you can use 'testnet' or 'mainnet' to init the sdk
 obj = Reddio("testnet")
 ```
 
+
 #### Get Balance
 
 ##### Usage
@@ -37,6 +38,7 @@ It will return the starkkey's balance. including ERC20/ETH/ERC721
 ```
 obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")
 ```
+
 
 
 
@@ -62,6 +64,7 @@ obj.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d8652
 ```
 
 In the example, you should replace the 'private_key' to the private key of the starkkey
+
 
 
 
