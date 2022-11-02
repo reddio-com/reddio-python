@@ -17,7 +17,7 @@ pip3 install red-py-sdk
 from redpysdk import Reddio
 ```
 
-##### Example
+#### Init object
 Init the object, you can use 'testnet' or 'mainnet' to init the sdk
 ```
 obj = Reddio("testnet")
