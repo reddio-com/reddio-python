@@ -1,7 +1,7 @@
 import requests
 import logging
 
-from settings import REDDIO_ENDPOIT_TESTNET, REDDIO_ENDPOIT_MAINNET
+from settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
 from http_utils import request
 from starkex_utils import get_signature_local,get_asset_id
@@ -10,9 +10,9 @@ class Reddio(object):
     def __init__(self, env="testnet"):
         self.env = env
         if self.env == "testnet":
-            self.endpoint = REDDIO_ENDPOIT_TESTNET
+            self.endpoint = REDDIO_ENDPOINT_TESTNET
         elif self.env == "mainnet":
-            self.endpoint = REDDIO_ENDPOIT_MAINNET
+            self.endpoint = REDDIO_ENDPOINT_MAINNET
 
     def get_vault_id(self, stark_key, assetid):
         data = {"asset_id":assetid, "stark_keys": stark_key}
