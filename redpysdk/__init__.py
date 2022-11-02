@@ -1,10 +1,10 @@
 import requests
 import logging
 
-from settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
+from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
-from http_utils import request
-from starkex_utils import get_signature_local,get_asset_id
+from .http_utils import request
+from .starkex_utils import get_signature_local,get_asset_id
 
 class Reddio(object):
     def __init__(self, env="testnet"):
@@ -55,7 +55,7 @@ class Reddio(object):
         return r.json()["data"]["list"]
 
     def list_user_nfts(self, stark_key, contract_address):
-        nfts = list_nft_by_user(stark_key, contract_address)
+        nfts = self.list_nft_by_user(stark_key, contract_address)
         nft_list = []
         for nft in nfts:
             if nft["balance_available"] > 0 and int(nft["token_id"]) > 668:
