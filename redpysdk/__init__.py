@@ -121,7 +121,7 @@ class Reddio(object):
         receiver_vault_id = self.get_vault_id(receiver, asset_id)
         nonce = self.get_nonce(sender_starkkey)
         data = {}
-        amount = int(amount) * int(10 ** decimals) / int(quantum) 
+        amount = int(int(float(amount) * int(10 ** decimals)) / int(quantum))
         data['asset_id'] = str(asset_id)
         data['receiver_vault_id'] = str(receiver_vault_id)
         data['sender_vault_id'] = str(vault_id)
@@ -145,7 +145,7 @@ class Reddio(object):
                     time.sleep(1)
                     continue
                 assert status == 1
-                return True
+                return sequence_id
             except Exception as e:
                 print("Transfer failed", e)
                 return False
@@ -178,8 +178,19 @@ class Reddio(object):
 
         url = self.endpoint + '/v1/withdrawalto'
         headers = {'Content-Type': 'application/json'}
-        x = request(url, transfer_data, headers)
-        return x.json()
+        while True:
+            try:
+                response = request(url, transfer_data, headers)
+                sequence_id = response.json()["data"]["sequence_id"]
+                status = self.get_sequence_status(sender_starkkey, sequence_id)
+                if status == 0:
+                    time.sleep(1)
+                    continue
+                assert status == 1
+                return sequence_id
+            except Exception as e:
+                print("Transfer failed", e)
+                return False
 
 def get_transfer_data(data):
     r, s = get_signature_local(data)
