@@ -1,5 +1,6 @@
 import requests
 import logging
+import time
 
 from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
@@ -103,6 +104,58 @@ class Reddio(object):
         headers = {'Content-Type': 'application/json'}
         x = request(url, transfer_data, headers)
         return x.json()
+    
+    def get_contract_info(self, contract_address):
+        uri = '/v1/contract_info' + '?contract_address=' + str(contract_address)
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json'}
+        r = requests.get(url, headers = headers)
+        return r.json()['data']
+    
+    def transferFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, amount, expiration_timestamp=4194303):
+        contract_info = self.get_contract_info(contract)
+        quantum = int(contract_info["quantum"])
+        decimals = int(contract_info["decimals"])
+        asset_id =  hex(get_asset_id(token_type, contract, quantum, 1))
+        vault_id = self.get_vault_id(sender_starkkey, asset_id)
+        receiver_vault_id = self.get_vault_id(receiver, asset_id)
+        nonce = self.get_nonce(sender_starkkey)
+        data = {}
+        amount = int(amount) * int(10 ** decimals) / int(quantum) 
+        data['asset_id'] = str(asset_id)
+        data['receiver_vault_id'] = str(receiver_vault_id)
+        data['sender_vault_id'] = str(vault_id)
+        data['nonce'] = str(nonce)
+        data['sender_private_key'] = str(stark_private_key)
+        data['amount'] = str(int(amount))
+        data['receiver'] = str(receiver)
+        data['expiration_timestamp'] = str(expiration_timestamp)
+        data['stark_key'] = str(sender_starkkey)
+
+        transfer_data = get_transfer_data(data)
+
+        url = self.endpoint + '/v1/transfers'
+        headers = {'Content-Type': 'application/json'}
+        while True:
+            try:
+                response = request(url, transfer_data, headers)
+                sequence_id = response.json()["data"]["sequence_id"]
+                status = self.get_sequence_status(sender_starkkey, sequence_id)
+                if status == 0:
+                    time.sleep(1)
+                    continue
+                assert status == 1
+                return True
+            except Exception as e:
+                print("Transfer failed", e)
+                return False
+    
+    def get_sequence_status(self, stark_key, sequence_id):
+        uri = '/v1/record' + '?sequence_id=' + str(sequence_id) + '&stark_key=' + str(stark_key)
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json'}
+        r = requests.get(url, headers = headers)
+        return r.json()['data'][0]['status']
 
     def withdrawNFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303):
         quantum = 1
