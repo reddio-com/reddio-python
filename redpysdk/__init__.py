@@ -5,6 +5,7 @@ from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
 from .http_utils import request
 from .starkex_utils import get_signature_local,get_asset_id
+from .signature import get_random_private_key,private_to_stark_key
 
 class Reddio(object):
     def __init__(self, env="testnet"):
@@ -20,6 +21,14 @@ class Reddio(object):
         r = requests.get(url = '%s/v1/vaults' % self.endpoint, params = data, headers = headers)
         vault_id = r.json()['data']['vault_ids'][0]
         return vault_id
+    
+    def get_stark_key_pair(self):
+        priv_key = get_random_private_key()
+        stark_key = hex(private_to_stark_key(priv_key))
+        return stark_key, hex(priv_key)
+    
+    def get_stark_key_by_private_key(self, stark_private_key):
+        return hex(private_to_stark_key(int(stark_private_key, 16)))
 
     def get_order_info(self, stark_key, contract1Type, contract1Address, contract1TokenID, contract2Type, contract2Address, contract2TokenID):
         uri = '/v1/order/info' + '?stark_key=' + str(stark_key) + '&contract1=' + str(contract1Type) + ':' + str(contract1Address) + ':' + str(contract1TokenID) + '&contract2=' + str(contract2Type) + ':' + str(contract2Address) + ':' + str(contract2TokenID)
