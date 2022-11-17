@@ -191,6 +191,17 @@ class Reddio(object):
             except Exception as e:
                 print("Transfer failed", e)
                 return False
+            
+    def mintNFT(self, api_key, contract_address, stark_key, amount):
+        uri = '/v1/mints'
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json', "X-API-KEY": api_key}
+        data = {}
+        data['contract_address'] = str(contract_address)
+        data['stark_key'] = str(stark_key)
+        data['amount'] = str(amount)
+        r = requests.post(url, headers = headers, json = data)
+        return r.json()['data']['sequence_ids']
 
 def get_transfer_data(data):
     r, s = get_signature_local(data)
