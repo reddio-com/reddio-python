@@ -71,6 +71,14 @@ class Reddio(object):
             if nft["balance_available"] > 0 and int(nft["token_id"]) > 668:
                 nft_list.append(nft)
         return nft_list
+    
+    def list_token_ids(self, stark_key, contract_address):
+        token_infos = self.list_nft_by_user(stark_key, contract_address)
+        token_list = []
+        for token_info in token_infos:
+            if token_info["balance_available"] > 0:
+                token_list.append(token_info["token_id"])
+        return token_list
 
     def get_nonce(self, stark_key):
         """
