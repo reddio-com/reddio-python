@@ -203,6 +203,149 @@ class Reddio(object):
         r = requests.post(url, headers = headers, json = data)
         return r.json()['data']['sequence_ids']
 
+    def get_order_info(self, stark_key, contract1Type, contract1Address, contract1TokenID, contract2Type, contract2Address, contract2TokenID):
+        uri = '/v1/order/info' + '?stark_key=' + str(stark_key) + '&contract1=' + str(contract1Type) + ':' + str(contract1Address) + ':' + str(contract1TokenID) + '&contract2=' + str(contract2Type) + ':' + str(contract2Address) + ':' + str(contract2TokenID)
+        url = self.endpoint + uri
+        print(url)
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        r = requests.get(url, headers = headers)
+        return r.json()['data']
+    
+    def sell_nft(contract_type, contract_address, tokenID, price,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
+        quantum = 1
+        amount = 1
+        expiration_timestamp = 4194303
+        asset_id = hex(get_asset_id(contract_type, contract_address, quantum, int(tokenID)))
+        quote_token = asset_id
+        direction = 0
+        token_sell = quote_token
+        account_id = self.get_stark_key_by_private_key(stark_private_key)
+        order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,tokenID)
+        token_buy = base_token
+        base_token = order_info['base_token']
+        vault_id_buy = order_info["vault_ids"][0]
+        vault_id_sell = order_info["vault_ids"][1]
+        nonce = order_info["nonce"]
+
+        data = {
+            "sender_private_key": stark_private_key,
+            "amount_buy":str(price),
+            "amount_sell":str(amount),
+            "token_buy":str(token_buy),
+            "token_sell":str(token_sell),
+            "vault_id_buy":str(vault_id_buy),
+            "vault_id_sell":str(vault_id_sell),
+            "expiration_timestamp":expiration_timestamp,
+            "nonce":nonce,
+            "fee_limit":str(fee_limit),
+            "fee_token":str(token_buy),
+            "fee_vault_id":str(vault_id_buy)
+        }
+
+        r,s = get_order_with_fee_signature_local(data)
+        fee_info = {
+            "fee_limit":fee_limit,
+            "token_id": base_token,
+            "source_vault_id":int(vault_id_buy),
+        }
+        order = {
+            "amount": str(amount),
+            "price": str(price),
+            "stark_key": str(account_id),
+            "amount_buy": str(amount * price),
+            "amount_sell": str(amount),
+            "token_buy": str(token_buy),
+            "token_sell": str(token_sell),
+            "vault_id_buy": str(vault_id_buy),
+            "vault_id_sell": str(vault_id_sell),
+            "expiration_timestamp": expiration_timestamp,
+            "base_token": str(base_token),
+            "quote_token": str(quote_token),
+            "nonce": nonce,
+            "signature": {
+                "r": r,
+                "s": s
+            },
+            "fee_info": fee_info,
+            "direction": direction,
+            "marketplace_uuid": marketplace_uuid,
+        }
+
+        data = order
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        url = self.endpoint + '/v1/order'
+        x = request(url, data, headers)
+        return x.json()
+
+    def buy_nft(contract_type, contract_address, tokenID, price, stark_private_key, marketplace_uuid = "11ed793a-cc11-4e44-9738-97165c4e14a7", fee_limit=20):
+        quantum = 1
+        asset_id = hex(get_asset_id(contract_type, contract_address, quantum, tokenID))
+        amount = 1
+        price = price
+        quote_token = asset_id
+        direction = 1
+
+        account_id = self.get_stark_key_by_private_key(stark_private_key)
+
+        token_buy = quote_token
+
+        order_info = get_order_info(account_id, "ETH","eth","1",contract_type,contract_address,tokenID)
+        base_token = order_info['base_token']
+        token_sell = base_token
+        vault_id_sell = order_info["vault_ids"][0]
+        vault_id_buy = order_info["vault_ids"][1]
+        nonce = order_info["nonce"]
+
+        expiration_timestamp = 4194303
+
+        data = {
+            "sender_private_key": stark_private_key,
+            "amount_buy":"1",
+            "amount_sell":str(amount*price),
+            "token_buy":str(token_buy),
+            "token_sell":str(token_sell),
+            "vault_id_buy":str(vault_id_buy),
+            "vault_id_sell":str(vault_id_sell),
+            "expiration_timestamp":expiration_timestamp,
+            "nonce":nonce,
+            "fee_limit":"1",
+            "fee_token":str(base_token),
+            "fee_vault_id":str(vault_id_sell)
+        }
+        r,s = get_order_with_fee_signature_local(data)
+        fee_info = {
+            "fee_limit":1,
+            "token_id": base_token,
+            "source_vault_id":int(vault_id_sell),
+        }
+        order = {
+            "amount": str(amount),
+            "price": str(price),
+            "stark_key": str(account_id),
+            "amount_buy": str(1),
+            "amount_sell": str(amount * price),
+            "token_buy": str(token_buy),
+            "token_sell": str(token_sell),
+            "vault_id_buy": str(vault_id_buy),
+            "vault_id_sell": str(vault_id_sell),
+            "expiration_timestamp": expiration_timestamp,
+            "base_token": str(base_token),
+            "quote_token": str(quote_token),
+            "nonce": nonce,
+            "signature": {
+                "r": r,
+                "s": s
+            },
+            "fee_info": fee_info,
+            "direction": direction
+        }
+
+        data = order
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        url = REDDIO_ENDPOIT + '/v1/order'
+        x = request(url, data, headers)
+        return x.json()
+
 def get_transfer_data(data):
     r, s = get_signature_local(data)
     original_transfer_data = {}
