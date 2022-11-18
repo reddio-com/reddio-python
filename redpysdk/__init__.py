@@ -1,11 +1,12 @@
 import requests
 import logging
 import time
+import math
 
 from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
 from .http_utils import request
-from .starkex_utils import get_signature_local,get_asset_id
+from .starkex_utils import get_signature_local,get_order_with_fee_signature_local, get_asset_id
 from .signature import get_random_private_key,private_to_stark_key
 
 class Reddio(object):
@@ -214,12 +215,11 @@ class Reddio(object):
     def get_order_info(self, stark_key, contract1Type, contract1Address, contract1TokenID, contract2Type, contract2Address, contract2TokenID):
         uri = '/v1/order/info' + '?stark_key=' + str(stark_key) + '&contract1=' + str(contract1Type) + ':' + str(contract1Address) + ':' + str(contract1TokenID) + '&contract2=' + str(contract2Type) + ':' + str(contract2Address) + ':' + str(contract2TokenID)
         url = self.endpoint + uri
-        print(url)
         headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
         r = requests.get(url, headers = headers)
         return r.json()['data']
     
-    def sell_nft(contract_type, contract_address, tokenID, price,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
+    def sell_nft(self, contract_type, contract_address, tokenID, price,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
         amount = 1
         expiration_timestamp = 4194303
@@ -229,11 +229,14 @@ class Reddio(object):
         token_sell = quote_token
         account_id = self.get_stark_key_by_private_key(stark_private_key)
         order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,tokenID)
-        token_buy = base_token
         base_token = order_info['base_token']
+        token_buy = base_token
         vault_id_buy = order_info["vault_ids"][0]
         vault_id_sell = order_info["vault_ids"][1]
         nonce = order_info["nonce"]
+        price = int(int(price * 10**order_info["contracts"][0]["decimals"])/order_info["contracts"][0]["quantum"])
+
+        fee_limit = int(math.ceil(price * float(order_info["fee_rate"])))
 
         data = {
             "sender_private_key": stark_private_key,
@@ -282,14 +285,15 @@ class Reddio(object):
         data = order
         headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
         url = self.endpoint + '/v1/order'
-        x = request(url, data, headers)
-        return x.json()
+        resp = request(url, data, headers)
+        if resp.json()["status"] == "OK":
+            return True
+        return False
 
-    def buy_nft(contract_type, contract_address, tokenID, price, stark_private_key, marketplace_uuid = "11ed793a-cc11-4e44-9738-97165c4e14a7", fee_limit=20):
+    def buy_nft(self, contract_type, contract_address, tokenID, price, stark_private_key, base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
         asset_id = hex(get_asset_id(contract_type, contract_address, quantum, tokenID))
         amount = 1
-        price = price
         quote_token = asset_id
         direction = 1
 
@@ -297,12 +301,18 @@ class Reddio(object):
 
         token_buy = quote_token
 
-        order_info = get_order_info(account_id, "ETH","eth","1",contract_type,contract_address,tokenID)
+        order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,tokenID)
+        
         base_token = order_info['base_token']
         token_sell = base_token
         vault_id_sell = order_info["vault_ids"][0]
         vault_id_buy = order_info["vault_ids"][1]
         nonce = order_info["nonce"]
+
+        price = int(int(price * 10**order_info["contracts"][0]["decimals"])/order_info["contracts"][0]["quantum"])
+
+        fee_limit = int(math.ceil(price * float(order_info["fee_rate"])))
+
 
         expiration_timestamp = 4194303
 
@@ -350,9 +360,11 @@ class Reddio(object):
 
         data = order
         headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
-        url = REDDIO_ENDPOIT + '/v1/order'
-        x = request(url, data, headers)
-        return x.json()
+        url = self.endpoint + '/v1/order'
+        resp = request(url, data, headers)
+        if resp.json()["status"] == "OK":
+            return True
+        return False
 
 def get_transfer_data(data):
     r, s = get_signature_local(data)
@@ -367,6 +379,7 @@ def get_transfer_data(data):
     original_transfer_data['asset_id'] = data['asset_id']
     original_transfer_data['expiration_timestamp'] = int(data['expiration_timestamp'])
     return original_transfer_data
+
 if __name__ == "__main__":
     obj = Reddio("testnet")
     # print(obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a"))
