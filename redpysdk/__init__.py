@@ -7,7 +7,7 @@ from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
 from .http_utils import request
 from .starkex_utils import get_signature_local,get_order_with_fee_signature_local, get_asset_id
-from .signature import get_random_private_key,private_to_stark_key
+from .signature import get_random_private_key,private_to_stark_key,pedersen_hash,sign
 
 class Reddio(object):
     def __init__(self, env="testnet"):
@@ -302,7 +302,7 @@ class Reddio(object):
         token_buy = quote_token
 
         order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,tokenID)
-        
+
         base_token = order_info['base_token']
         token_sell = base_token
         vault_id_sell = order_info["vault_ids"][0]
@@ -365,6 +365,30 @@ class Reddio(object):
         if resp.json()["status"] == "OK":
             return True
         return False
+
+    def cancel_order(self, order_id, stark_private_key):
+        stark_public_key = self.get_stark_key_by_private_key(stark_private_key)
+
+        r, s = sign_order(order_id, int(stark_private_key,16))
+    
+        headers = {'Content-Type': 'application/json'}
+        url = self.endpoint + '/v1/orders/' + str(order_id) + '/cancel'
+        data = {
+            "stark_key": stark_public_key,
+            "signature": {
+                "r": str(r),
+                "s": str(s)
+            }
+        }
+        resp = request(url, data, headers)
+        if resp.json()["status"] == "OK":
+            return True
+        return False
+
+def sign_order(order_id, starkPrivateKey):
+    msg_hash = pedersen_hash(int(order_id),0)
+    r, s = sign(msg_hash, starkPrivateKey)
+    return hex(r), hex(s)
 
 def get_transfer_data(data):
     r, s = get_signature_local(data)
