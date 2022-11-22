@@ -21,8 +21,12 @@ class Reddio(object):
         data = {"asset_id":assetid, "stark_keys": stark_key}
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url = '%s/v1/vaults' % self.endpoint, params = data, headers = headers)
-        vault_id = r.json()['data']['vault_ids'][0]
-        return vault_id
+        try:
+            return r.json()['data']['vault_ids'][0]
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
     
     def get_stark_key_pair(self):
         priv_key = get_random_private_key()
@@ -37,7 +41,12 @@ class Reddio(object):
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)
-        return r.json()['data']
+        try:
+            return r.json()['data']
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
 
 
     def get_balances(self, stark_key, page=1, limit=10):
@@ -45,7 +54,12 @@ class Reddio(object):
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
         r = requests.get(url, headers = headers)
-        return r.json()["data"]["list"]
+        try:
+            return r.json()["data"]["list"]
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
 
     def get_orders(self, contract_address):
         uri = '/v1/orders' + '?contract_address=' + str(contract_address)
@@ -53,17 +67,27 @@ class Reddio(object):
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)
         order_list = []
-        for order in r.json()["data"]["list"]:
-            if order["stark_key"] != "":
-                order_list.append(order)
-        return order_list
+        try:
+            for order in r.json()["data"]["list"]:
+                if order["stark_key"] != "":
+                    order_list.append(order)
+            return order_list
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
 
     def list_nft_by_user(self, stark_key, contract_address):
         uri = '/v1/balances' + '?stark_key=' + str(stark_key) + '&contract_address=' + str(contract_address) + '&limit=1000'
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
-        r = requests.get(url, headers = headers)
-        return r.json()["data"]["list"]
+        try:
+            r = requests.get(url, headers = headers)
+            return r.json()["data"]["list"]
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
 
     def list_user_nfts(self, stark_key, contract_address):
         nfts = self.list_nft_by_user(stark_key, contract_address)
@@ -88,7 +112,12 @@ class Reddio(object):
         data = {"stark_key": stark_key}
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url = '%s/v1/nonce' % self.endpoint , params = data, headers = headers)
-        return r.json()['data']['nonce']
+        try:
+            return r.json()['data']['nonce']
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
     
     def transferNFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303):
         quantum = 1
@@ -112,14 +141,24 @@ class Reddio(object):
         url = self.endpoint + '/v1/transfers'
         headers = {'Content-Type': 'application/json'}
         x = request(url, transfer_data, headers)
-        return x.json()
+        try:
+            return x.json()
+        except (TypeError, KeyError):
+            raise Exception(x.json()['error'])
+        except Exception as e:
+            raise e
     
     def get_contract_info(self, contract_address):
         uri = '/v1/contract_info' + '?contract_address=' + str(contract_address)
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)
-        return r.json()['data']
+        try:
+            return r.json()['data']
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
     
     def transferFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, amount, expiration_timestamp=4194303):
         contract_info = self.get_contract_info(contract)
@@ -156,8 +195,7 @@ class Reddio(object):
                 assert status == 1
                 return sequence_id
             except Exception as e:
-                print("Transfer failed", e)
-                return False
+                raise e
     
     def get_sequence_status(self, stark_key, sequence_id):
         uri = '/v1/record' + '?sequence_id=' + str(sequence_id) + '&stark_key=' + str(stark_key)
@@ -198,8 +236,7 @@ class Reddio(object):
                 assert status == 1
                 return sequence_id
             except Exception as e:
-                print("Transfer failed", e)
-                return False
+                raise e
             
     def mintNFT(self, api_key, contract_address, stark_key, amount):
         uri = '/v1/mints'
@@ -210,10 +247,12 @@ class Reddio(object):
         data['stark_key'] = str(stark_key)
         data['amount'] = str(amount)
         r = requests.post(url, headers = headers, json = data)
-        if r.json()['status'] == 'OK':
+        try:
             return r.json()['data']['sequence_ids']
-        else:
+        except (TypeError, KeyError):
             raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
 
 
     def get_order_info(self, stark_key, contract1Type, contract1Address, contract1TokenID, contract2Type, contract2Address, contract2TokenID):
@@ -221,7 +260,12 @@ class Reddio(object):
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
         r = requests.get(url, headers = headers)
-        return r.json()['data']
+        try:
+            return r.json()['data']
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e   
     
     def sell_nft(self, contract_type, contract_address, tokenID, price,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
@@ -291,8 +335,8 @@ class Reddio(object):
         url = self.endpoint + '/v1/order'
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
-            return True
-        return False
+            return resp.json()["data"]["sequence_id"]
+        raise Exception(resp.json()["error"])
 
     def buy_nft(self, contract_type, contract_address, tokenID, price, stark_private_key, base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
@@ -367,8 +411,8 @@ class Reddio(object):
         url = self.endpoint + '/v1/order'
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
-            return True
-        return False
+            return resp.json()["data"]["sequence_id"]
+        raise Exception(resp.json()["error"])
 
     def cancel_order(self, order_id, stark_private_key):
         stark_public_key = self.get_stark_key_by_private_key(stark_private_key)
@@ -386,8 +430,8 @@ class Reddio(object):
         }
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
-            return True
-        return False
+            return resp.json()["data"]["sequence_id"]
+        raise Exception(resp.json()["error"])
 
 def sign_order(order_id, starkPrivateKey):
     msg_hash = pedersen_hash(int(order_id),0)
