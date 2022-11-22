@@ -24,7 +24,7 @@ class Reddio(object):
         try:
             return r.json()['data']['vault_ids'][0]
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
     
@@ -44,7 +44,7 @@ class Reddio(object):
         try:
             return r.json()['data']
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -57,7 +57,7 @@ class Reddio(object):
         try:
             return r.json()["data"]["list"]
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -69,7 +69,7 @@ class Reddio(object):
         try:
             return r.json()["data"]
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -86,7 +86,7 @@ class Reddio(object):
                     order_list.append(order)
             return order_list
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -98,7 +98,7 @@ class Reddio(object):
         try:
             return r.json()["data"]["list"]
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -128,7 +128,7 @@ class Reddio(object):
         try:
             return r.json()['data']['nonce']
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
     
@@ -157,7 +157,7 @@ class Reddio(object):
         try:
             return r.json()
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
     
@@ -169,7 +169,7 @@ class Reddio(object):
         try:
             return r.json()['data']
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
     
@@ -263,7 +263,7 @@ class Reddio(object):
         try:
             return r.json()['data']['sequence_ids']
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e
 
@@ -276,7 +276,7 @@ class Reddio(object):
         try:
             return r.json()['data']
         except (TypeError, KeyError):
-            raise Exception(r.json()['error'])
+            return r.json()['error']
         except Exception as e:
             raise e   
     
@@ -349,7 +349,7 @@ class Reddio(object):
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
             return resp.json()["data"]["sequence_id"]
-        raise Exception(resp.json()["error"])
+        return resp.json()["error"]
 
     def buy_nft(self, contract_type, contract_address, tokenID, price, stark_private_key, base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
@@ -425,7 +425,7 @@ class Reddio(object):
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
             return resp.json()["data"]["sequence_id"]
-        raise Exception(resp.json()["error"])
+        return resp.json()["error"]
 
     def cancel_order(self, order_id, stark_private_key):
         stark_public_key = self.get_stark_key_by_private_key(stark_private_key)
@@ -444,7 +444,7 @@ class Reddio(object):
         resp = request(url, data, headers)
         if resp.json()["status"] == "OK":
             return resp.json()["data"]["sequence_id"]
-        raise Exception(resp.json()["error"])
+        return resp.json()["error"]
 
 def sign_order(order_id, starkPrivateKey):
     msg_hash = pedersen_hash(int(order_id),0)
