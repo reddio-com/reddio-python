@@ -210,7 +210,11 @@ class Reddio(object):
         data['stark_key'] = str(stark_key)
         data['amount'] = str(amount)
         r = requests.post(url, headers = headers, json = data)
-        return r.json()['data']['sequence_ids']
+        if r.json()['status'] == 'OK':
+            return r.json()['data']['sequence_ids']
+        else:
+            raise Exception(r.json()['error'])
+
 
     def get_order_info(self, stark_key, contract1Type, contract1Address, contract1TokenID, contract2Type, contract2Address, contract2TokenID):
         uri = '/v1/order/info' + '?stark_key=' + str(stark_key) + '&contract1=' + str(contract1Type) + ':' + str(contract1Address) + ':' + str(contract1TokenID) + '&contract2=' + str(contract2Type) + ':' + str(contract2Address) + ':' + str(contract2TokenID)
