@@ -81,8 +81,8 @@ class Reddio(object):
         uri = '/v1/balances' + '?stark_key=' + str(stark_key) + '&contract_address=' + str(contract_address) + '&limit=1000'
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
+        r = requests.get(url, headers = headers)
         try:
-            r = requests.get(url, headers = headers)
             return r.json()["data"]["list"]
         except (TypeError, KeyError):
             raise Exception(r.json()['error'])
@@ -140,11 +140,11 @@ class Reddio(object):
 
         url = self.endpoint + '/v1/transfers'
         headers = {'Content-Type': 'application/json'}
-        x = request(url, transfer_data, headers)
+        r = request(url, transfer_data, headers)
         try:
-            return x.json()
+            return r.json()
         except (TypeError, KeyError):
-            raise Exception(x.json()['error'])
+            raise Exception(r.json()['error'])
         except Exception as e:
             raise e
     
