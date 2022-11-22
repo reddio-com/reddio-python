@@ -213,13 +213,29 @@ class Reddio(object):
             except Exception as e:
                 raise e
     
+    def get_sequence(self, stark_key, sequence_id):
+        uri = '/v1/record' + '?sequence_id=' + str(sequence_id) + '&stark_key=' + str(stark_key)
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json'}
+        r = requests.get(url, headers = headers)
+        try:
+            return r.json()['data'][0]
+        except (TypeError, KeyError):
+            return r.json()['error']
+        except Exception as e:
+            raise e
+    
     def get_sequence_status(self, stark_key, sequence_id):
         uri = '/v1/record' + '?sequence_id=' + str(sequence_id) + '&stark_key=' + str(stark_key)
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)
-        return r.json()['data'][0]['status']
-
+        try:
+            return r.json()['data'][0]['status']
+        except (TypeError, KeyError):
+            return r.json()['error']
+        except Exception as e:
+            raise e
     def withdrawNFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303):
         quantum = 1
         asset_id =  hex(get_asset_id(token_type, contract, quantum, int(tokenID)))
