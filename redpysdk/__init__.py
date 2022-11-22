@@ -236,6 +236,7 @@ class Reddio(object):
             return r.json()['error']
         except Exception as e:
             raise e
+            
     def withdrawNFT(self, stark_private_key, sender_starkkey, receiver, token_type, contract, tokenID, expiration_timestamp=4194303):
         quantum = 1
         asset_id =  hex(get_asset_id(token_type, contract, quantum, int(tokenID)))
