@@ -61,6 +61,19 @@ class Reddio(object):
         except Exception as e:
             raise e
 
+    def get_balances_v2(self, stark_key):
+        uri = '/v2/balances' + '?stark_key=' + str(stark_key)
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        r = requests.get(url, headers = headers)
+        try:
+            return r.json()["data"]
+        except (TypeError, KeyError):
+            raise Exception(r.json()['error'])
+        except Exception as e:
+            raise e
+
+
     def get_orders(self, contract_address):
         uri = '/v1/orders' + '?contract_address=' + str(contract_address)
         url = self.endpoint + uri
