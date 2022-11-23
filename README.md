@@ -20,8 +20,23 @@ from redpysdk import Reddio
 #### Init object
 Init the object, you can use 'testnet' or 'mainnet' to init the sdk
 ```
-obj = Reddio("testnet")
+reddio = Reddio("testnet")
 ```
+
+#### Get StarkKey Pair
+##### Usage
+```
+get_stark_key_pair()
+```
+It will generate an random starkkey pair
+
+##### Example
+```
+>>> reddio.get_stark_key_pair()
+('0x395d1708ab0ee91efcb7f26a2f4fcbe20faf3c7390517667fed37b0e481882a', '0x5aa1b67a486b6564a2b6ae7426950c03dfe6991f9d34ea45b6b0be0672a1818')
+```
+
+
 
 
 #### Get Balance
@@ -36,7 +51,7 @@ It will return the starkkey's balance. including ERC20/ETH/ERC721
 ##### Example
 
 ```
-obj.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")
+reddio.get_balances("0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a")
 ```
 
 
@@ -60,7 +75,7 @@ parameters
 ##### Example
 
 ```
-obj.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0x1ada455b26b246260b7fd876429289639d7a0ce5fe295ff2355bd4f4da55e2', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '618'))
+reddio.transferNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0x1ada455b26b246260b7fd876429289639d7a0ce5fe295ff2355bd4f4da55e2', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '618'))
 ```
 
 In the example, you should replace the 'private_key' to the private key of the starkkey
@@ -86,7 +101,7 @@ parameters
 ##### Example
 
 ```
-obj.withdrawNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0xffc882996cFAB2C8B9983394E09bb025a98e52bc', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '663')
+reddio.withdrawNFT('private_key', '0x6ecaebbe5b9486472d964217e5470380782823bb0d865240ba916d01636310a', '0xffc882996cFAB2C8B9983394E09bb025a98e52bc', 'ERC721', '0x941661Bd1134DC7cc3D107BF006B8631F6E65Ad5', '663')
 ```
 
 In the example, you should replace the 'private_key' to the private key of the starkkey
