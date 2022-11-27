@@ -74,7 +74,7 @@ class Reddio(object):
             raise e
 
 
-    def get_orders(self, contract_address, token_ids):
+    def get_orders(self, contract_address, token_ids=None):
         uri = '/v1/orders' + '?contract_address=' + str(contract_address)
         if isinstance(token_ids, list):
             token_ids = ','.join(str(i) for i in token_ids)
@@ -93,7 +93,7 @@ class Reddio(object):
         except Exception as e:
             raise e
 
-    def get_collection(self, contract_address, token_ids):
+    def get_collection(self, contract_address, token_ids=None):
         uri = '/v1/collection' + '?quote_contract_address=' + str(contract_address)
         if isinstance(token_ids, list):
             token_ids = ','.join(str(i) for i in token_ids)
