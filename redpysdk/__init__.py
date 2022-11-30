@@ -74,12 +74,14 @@ class Reddio(object):
             raise e
 
 
-    def get_orders(self, contract_address, token_ids=None):
+    def get_orders(self, contract_address, token_ids=None,direction=0):
         uri = '/v1/orders' + '?contract_address=' + str(contract_address)
         if isinstance(token_ids, list):
             token_ids = ','.join(str(i) for i in token_ids)
             uri += '&token_ids=' + str(token_ids)
         url = self.endpoint + uri
+        if direction == 1:
+            url += '&direction=1'
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)
         order_list = []
