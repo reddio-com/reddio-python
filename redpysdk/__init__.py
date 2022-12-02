@@ -115,7 +115,7 @@ class Reddio(object):
         uri = '/v1/contracts/' + str(contract_address) + '/tokens'
         if isinstance(token_ids, list):
             token_ids = ','.join(str(i) for i in token_ids)
-            uri += '&token_ids=' + str(token_ids)
+            uri += '?token_ids=' + str(token_ids)
         url = self.endpoint + uri
         headers = {'Content-Type': 'application/json'}
         r = requests.get(url, headers = headers)

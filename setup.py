@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="red-py-sdk",
-    version="0.1.9",
+    version="0.1.10",
     author="Reddio",
     author_email="contact@reddio.com",
     description="https://github.com/reddio-com/red-py-sdk",
