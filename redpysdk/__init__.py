@@ -110,6 +110,22 @@ class Reddio(object):
             return r.json()['error']
         except Exception as e:
             raise e
+    
+    def get_token_owners(self, contract_address, token_ids=None):
+        uri = '/v1/contracts/' + str(contract_address) + '/tokens'
+        if isinstance(token_ids, list):
+            token_ids = ','.join(str(i) for i in token_ids)
+            uri += '&token_ids=' + str(token_ids)
+        url = self.endpoint + uri
+        headers = {'Content-Type': 'application/json'}
+        r = requests.get(url, headers = headers)
+        order_list = []
+        try:
+            return r.json()["data"]["list"]
+        except (TypeError, KeyError):
+            return r.json()['error']
+        except Exception as e:
+            raise e
 
     def list_nft_by_user(self, stark_key, contract_address):
         uri = '/v1/balances' + '?stark_key=' + str(stark_key) + '&contract_address=' + str(contract_address) + '&limit=1000'
