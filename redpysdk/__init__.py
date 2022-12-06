@@ -2,6 +2,7 @@ import requests
 import logging
 import time
 import math
+from decimal import Decimal
 
 from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
 
@@ -356,7 +357,7 @@ class Reddio(object):
 
         data = {
             "sender_private_key": stark_private_key,
-            "amount_buy":str(int(price*amount)),
+            "amount_buy":str(int(amount*Decimal(price).quantize(Decimal('0.00001')))),
             "amount_sell":str(amount),
             "token_buy":str(token_buy),
             "token_sell":str(token_sell),
@@ -379,7 +380,7 @@ class Reddio(object):
             "amount": str(amount),
             "price": str(price),
             "stark_key": str(account_id),
-            "amount_buy": str(int(amount * price)),
+            "amount_buy": str(int(amount*Decimal(price).quantize(Decimal('0.00001')))),
             "amount_sell": str(amount),
             "token_buy": str(token_buy),
             "token_sell": str(token_sell),
@@ -429,7 +430,7 @@ class Reddio(object):
         data = {
             "sender_private_key": stark_private_key,
             "amount_buy":str(amount),
-            "amount_sell":str(int(amount*price)),
+            "amount_sell":str(int(amount*Decimal(price).quantize(Decimal('0.00001')))),
             "token_buy":str(token_buy),
             "token_sell":str(token_sell),
             "vault_id_buy":str(vault_id_buy),
@@ -452,7 +453,7 @@ class Reddio(object):
             "price": str(price),
             "stark_key": str(account_id),
             "amount_buy": str(amount),
-            "amount_sell": str(int(amount * price)),
+            "amount_sell": str(int(amount*Decimal(price).quantize(Decimal('0.00001')))),
             "token_buy": str(token_buy),
             "token_sell": str(token_sell),
             "vault_id_buy": str(vault_id_buy),
