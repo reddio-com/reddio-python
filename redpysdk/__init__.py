@@ -16,6 +16,8 @@ class Reddio(object):
             self.endpoint = REDDIO_ENDPOINT_TESTNET
         elif self.env == "mainnet":
             self.endpoint = REDDIO_ENDPOINT_MAINNET
+        elif self.env == "local":
+            self.endpoint = "http://localhost:8080"
 
     def get_vault_id(self, stark_key, assetid):
         data = {"asset_id":assetid, "stark_keys": stark_key}
@@ -333,6 +335,148 @@ class Reddio(object):
             return r.json()['error']
         except Exception as e:
             raise e   
+    
+
+    def sell_FT(self, contract_type, contract_address, price, amount,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
+        account_id = self.get_stark_key_by_private_key(stark_private_key)
+        order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,"1")
+        expiration_timestamp = 4194303
+        quote_token = order_info["asset_ids"][1]
+        token_sell = quote_token
+        base_token = order_info['base_token']
+        token_buy = base_token
+        direction = 0
+        vault_id_buy = order_info["vault_ids"][0]
+        vault_id_sell = order_info["vault_ids"][1]
+        nonce = order_info["nonce"]
+        
+        amount = int(int(amount * 10**order_info["contracts"][1]["decimals"])/order_info["contracts"][1]["quantum"])
+
+        fee_limit = int(math.ceil(price * amount * float(order_info["fee_rate"])))
+
+        data = {
+            "sender_private_key": stark_private_key,
+            "amount_buy":str(int(price*amount)),
+            "amount_sell":str(amount),
+            "token_buy":str(token_buy),
+            "token_sell":str(token_sell),
+            "vault_id_buy":str(vault_id_buy),
+            "vault_id_sell":str(vault_id_sell),
+            "expiration_timestamp":expiration_timestamp,
+            "nonce":nonce,
+            "fee_limit":str(fee_limit),
+            "fee_token":str(token_buy),
+            "fee_vault_id":str(vault_id_buy)
+        }
+
+        r,s = get_order_with_fee_signature_local(data)
+        fee_info = {
+            "fee_limit":fee_limit,
+            "token_id": base_token,
+            "source_vault_id":int(vault_id_buy),
+        }
+        order = {
+            "amount": str(amount),
+            "price": str(price),
+            "stark_key": str(account_id),
+            "amount_buy": str(int(amount * price)),
+            "amount_sell": str(amount),
+            "token_buy": str(token_buy),
+            "token_sell": str(token_sell),
+            "vault_id_buy": str(vault_id_buy),
+            "vault_id_sell": str(vault_id_sell),
+            "expiration_timestamp": expiration_timestamp,
+            "base_token": str(base_token),
+            "quote_token": str(quote_token),
+            "nonce": nonce,
+            "signature": {
+                "r": r,
+                "s": s
+            },
+            "fee_info": fee_info,
+            "direction": direction,
+            "marketplace_uuid": marketplace_uuid,
+        }
+
+        data = order
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        url = self.endpoint + '/v1/order'
+        resp = request(url, data, headers)
+        if resp.json()["status"] == "OK":
+            return resp.json()["data"]["sequence_id"]
+        return resp.json()["error"]
+    
+    def buy_FT(self, contract_type, contract_address, price,amount, stark_private_key, base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
+        account_id = self.get_stark_key_by_private_key(stark_private_key)
+
+        order_info = self.get_order_info(account_id, base_token_type,base_token_contract,"1",contract_type,contract_address,"1")
+        direction = 1
+        quote_token = order_info["asset_ids"][1]
+        token_buy = quote_token
+        base_token = order_info['base_token']
+        token_sell = base_token
+        vault_id_sell = order_info["vault_ids"][0]
+        vault_id_buy = order_info["vault_ids"][1]
+        nonce = order_info["nonce"]
+
+        amount = int(int(amount * 10**order_info["contracts"][1]["decimals"])/order_info["contracts"][1]["quantum"])
+
+        fee_limit = int(math.ceil(price * amount * float(order_info["fee_rate"])))
+
+
+        expiration_timestamp = 4194303
+
+        data = {
+            "sender_private_key": stark_private_key,
+            "amount_buy":str(amount),
+            "amount_sell":str(int(amount*price)),
+            "token_buy":str(token_buy),
+            "token_sell":str(token_sell),
+            "vault_id_buy":str(vault_id_buy),
+            "vault_id_sell":str(vault_id_sell),
+            "expiration_timestamp":expiration_timestamp,
+            "nonce":nonce,
+            "fee_limit":"1",
+            "fee_token":str(base_token),
+            "fee_vault_id":str(vault_id_sell)
+        }
+        r,s = get_order_with_fee_signature_local(data)
+        fee_info = {
+            "fee_limit":1,
+            "token_id": base_token,
+            "source_vault_id":int(vault_id_sell),
+        }
+
+        order = {
+            "amount": str(amount),
+            "price": str(price),
+            "stark_key": str(account_id),
+            "amount_buy": str(amount),
+            "amount_sell": str(int(amount * price)),
+            "token_buy": str(token_buy),
+            "token_sell": str(token_sell),
+            "vault_id_buy": str(vault_id_buy),
+            "vault_id_sell": str(vault_id_sell),
+            "expiration_timestamp": expiration_timestamp,
+            "base_token": str(base_token),
+            "quote_token": str(quote_token),
+            "nonce": nonce,
+            "signature": {
+                "r": r,
+                "s": s
+            },
+            "fee_info": fee_info,
+            "direction": direction
+        }
+
+        data = order
+        headers = {'Content-Type': 'application/json', "User-Agent":"ReddioFrame"}
+        url = self.endpoint + '/v1/order'
+        resp = request(url, data, headers)
+        if resp.json()["status"] == "OK":
+            return resp.json()["data"]["sequence_id"]
+        return resp.json()["error"]
+
     
     def sell_nft(self, contract_type, contract_address, tokenID, price,  stark_private_key,base_token_type = "ETH", base_token_contract="eth", marketplace_uuid = ""):
         quantum = 1
