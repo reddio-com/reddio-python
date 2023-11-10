@@ -4,7 +4,7 @@ import time
 import math
 from decimal import Decimal
 
-from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET
+from .settings import REDDIO_ENDPOINT_TESTNET, REDDIO_ENDPOINT_MAINNET, REDDIO_ENDPOINT_SEPOLIA
 
 from .http_utils import request
 from .starkex_utils import get_signature_local,get_order_with_fee_signature_local, get_asset_id
@@ -19,6 +19,8 @@ class Reddio(object):
             self.endpoint = REDDIO_ENDPOINT_MAINNET
         elif self.env == "local":
             self.endpoint = "http://localhost:8080"
+        elif self.env == "sepolia":
+            self.endpoint = REDDIO_ENDPOINT_SEPOLIA
 
     def get_vault_id(self, stark_key, assetid):
         data = {"asset_id":assetid, "stark_keys": stark_key}
